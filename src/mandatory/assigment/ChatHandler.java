@@ -41,7 +41,7 @@ public class ChatHandler implements Runnable {
                     String name = input.readLine();
                     if (name.startsWith("JOIN")) {
                         name = name.substring(5);
-                        String[] nameSplit = name.split(",", 2);
+                        String[] nameSplit = name.split(",", 0);
                         name = nameSplit[0];
                         if (!Server.nameList.containsKey(name)) {
                             Server.nameList.put(name, client);
