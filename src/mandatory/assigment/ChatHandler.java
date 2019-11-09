@@ -27,7 +27,7 @@ public class ChatHandler implements Runnable {
             while (isRunning) {
                 if (isLoggedIn) {
                     String userInput = input.readLine();
-                    if (userInput.equals("Luk ned")) {
+                    if (userInput.equals("QUIT")) {
                         notifyClients(this.clientName + " har forladt chatten!");
                         Server.nameList.remove(this.clientName);
                         Server.clientList.remove(this);
@@ -39,15 +39,21 @@ public class ChatHandler implements Runnable {
                     }
                 } else {
                     String name = input.readLine();
-                    if (!Server.nameList.containsKey(name)) {
-                        output.println("Du er nu logget på chatten!");
-                        notifyClients("JOIN " + name + ", " + client.getLocalAddress() + ":" + client.getLocalPort());
-                        Server.nameList.put(name, client);
-                        broadcastNewlyUpdatedList();
-                        this.clientName = name;
-                        isLoggedIn = true;
+                    if (name.startsWith("JOIN")) {
+                        name = name.substring(5);
+                        String[] nameSplit = name.split(",", 2);
+                        name = nameSplit[0];
+                        if (!Server.nameList.containsKey(name)) {
+                            Server.nameList.put(name, client);
+                            output.println("J_OK");
+                            broadcastNewlyUpdatedList();
+                            this.clientName = name;
+                            isLoggedIn = true;
+                        } else {
+                            output.println("Error 401: Brugernavnet findes allerede i listen!");
+                        }
                     } else {
-                        output.println("Error 401: Brugernavnet findes allerede i listen!");
+                        output.println("Sent String does not match protocol");
                     }
                 }
             }
