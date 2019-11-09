@@ -9,17 +9,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
 
-    public static void main(String[] args) throws IOException {
+    private String IP;
+    private int port;
+    private String username;
 
-        final String IP = "127.0.0.1";
-        final int port = 1234;
-        Socket socket = new Socket(IP, port);
+    private BufferedReader keyboardInput = null;
+    private BufferedReader input = null;
+    private PrintWriter output = null;
 
-        AtomicBoolean connected = new AtomicBoolean(false);
+    private AtomicBoolean connected = new AtomicBoolean(false);
 
-        BufferedReader keyboardInput = new BufferedReader(new InputStreamReader(System.in));
-        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+    public Client(String IP, int port) {
+        this.IP = IP;
+        this.port = port;
+        try {
+            Socket socket = new Socket(IP, port);
+            keyboardInput = new BufferedReader(new InputStreamReader(System.in));
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            output = new PrintWriter(socket.getOutputStream(), true);
+        } catch (IOException error) {
+            System.out.println("Noget gik galt: " + error.getMessage());
+        }
+
 
         Thread messageToServer = new Thread(() -> {
             while (true) {
@@ -27,7 +38,10 @@ public class Client {
                     System.out.print(">> ");
                     String msg = keyboardInput.readLine();
                     if (!connected.get()) {
-                        msg = "JOIN " + msg + ", " + IP + ":" + port;
+                        username = msg;
+                        msg = wrapper("JOIN", msg);
+                    } else {
+                        msg = wrapper("DATA", msg);
                     }
                     output.println(msg);
                 } catch (IOException error) {
@@ -35,6 +49,7 @@ public class Client {
                 }
             }
         });
+        messageToServer.start();
 
         Thread messageFromServer = new Thread(() -> {
             while (true) {
@@ -49,6 +64,28 @@ public class Client {
                 }
             }
         });
+        messageFromServer.start();
+    }
+
+    private String wrapper(String type, String input) {
+        String wrappedText = "";
+        switch (type) {
+            case "JOIN":
+                wrappedText = "JOIN " + input + ", " + IP + ":" + port;
+                break;
+            case "DATA":
+                wrappedText = "DATA " + username + ": " + input;
+                break;
+        }
+        return wrappedText;
+    }
+
+
+
+
+
+    public static void main(String[] args) {
+        Client client = new Client("127.0.0.1", 1234);
 
         //TODO: Implement this.
 //        Thread sendHeartbeat = new Thread(() -> {
@@ -60,9 +97,6 @@ public class Client {
 //                }
 //            }
 //        });
-
-        messageToServer.start();
-        messageFromServer.start();
     }
 
 }

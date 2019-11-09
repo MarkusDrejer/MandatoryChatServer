@@ -39,7 +39,7 @@ public class ChatHandler implements Runnable {
                     }
                 } else {
                     String name = input.readLine();
-                    if (name.startsWith("JOIN")) {
+                    if (name.startsWith("JOIN ")) {
                         name = name.substring(5);
                         String[] nameSplit = name.split(",", 0);
                         name = nameSplit[0];
