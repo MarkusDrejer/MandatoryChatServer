@@ -7,7 +7,8 @@ public enum JErrorStatus {
     USERNAME_TO_LONG(103, "Username to long"),
     USERNAME_ALREADY_EXISTS(104, "Username already exists"),
     CLIENT_NAME_MISMATCH(105, "Client name does not match"),
-    TEXT_TO_LONG(106, "To many characters in written text"),
+    TEXT_TO_LONG(106, "Too many characters in written text"),
+    MISSING_MESSAGE(107, "Missing parts of message after command"),
 
     OK(202, "OK");
 
@@ -17,14 +18,6 @@ public enum JErrorStatus {
     private JErrorStatus(int code, String errorMsg) {
         this.code = code;
         this.errorMsg = errorMsg;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getErrorMsg() {
-        return errorMsg;
     }
 
     public String toString() {

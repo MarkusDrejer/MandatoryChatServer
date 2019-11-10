@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-    //TODO: Fix client class as it is a bit messy, make heartbeat work on both client and server side, maybe find a better solution to all the string splits
+    //TODO: Make heartbeat work on both client and server side, maybe find a better solution to all the string splits
 
 public class ChatHandler implements Runnable {
 
@@ -27,11 +27,10 @@ public class ChatHandler implements Runnable {
     public void run() {
         try {
             while (isRunning) {
+                String userInput = input.readLine();
                 if (isLoggedIn) {
-                    String userInput = input.readLine();
-                    String[] commandSplit = userInput.split(" ", 2);
+                    String[] commandSplit = userInput.split("[\\s:]", 3);
                     String command = commandSplit[0];
-
                     /**
                      * The switch represents the command-set the server understands and can act upon.
                      * The JOIN command is special and should only be able to happen once,
@@ -39,9 +38,9 @@ public class ChatHandler implements Runnable {
                      */
                     switch (command) {
                         case "DATA":
-                            JErrorStatus status = ServerCommandHandler.dataCommand(commandSplit[1], clientName);
+                            JErrorStatus status = ServerCommandHandler.dataCommand(userInput, clientName);
                             if(status == JErrorStatus.OK) {
-                                notifyClients(clientName + ":" + commandSplit[1].split(":", 0)[1]);
+                                notifyClients(clientName + ":" + commandSplit[2]);
                             } else {
                                 output.println(status);
                             }
@@ -63,8 +62,6 @@ public class ChatHandler implements Runnable {
                      * and makes various checks on the username chosen in the ServerCommandHandler Class.
                      */
                 } else {
-                    output.println("Please input a username");
-                    String userInput = input.readLine();
                     JErrorStatus status = ServerCommandHandler.joinCheck(userInput);
                     output.println(status);
                     if(status == JErrorStatus.OK) {

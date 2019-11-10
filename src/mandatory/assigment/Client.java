@@ -33,19 +33,18 @@ public class Client {
 
 
         Thread messageToServer = new Thread(() -> {
+            System.out.println("Please input a username");
             while (true) {
                 try {
                     System.out.print(">> ");
-                    String msg = keyboardInput.readLine();
+                    String userInput = keyboardInput.readLine();
                     if (!connected.get()) {
-                        username = msg;
-                        msg = wrapper("JOIN", msg);
-                    } else if(msg.equals("QUIT")) {
-
-                    } else {
-                        msg = wrapper("DATA", msg);
+                        username = userInput;
+                        userInput = wrapper("JOIN", userInput);
+                    } else if(!userInput.equals("QUIT")){
+                        userInput = wrapper("DATA", userInput);
                     }
-                    output.println(msg);
+                    output.println(userInput);
                 } catch (IOException error) {
                     System.out.println("Noget gik galt: " + error.getMessage());
                 }
