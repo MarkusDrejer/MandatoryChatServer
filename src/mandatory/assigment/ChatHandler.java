@@ -41,7 +41,7 @@ public class ChatHandler implements Runnable {
                             if(text.startsWith("J_ER")) {
                                 output.println(text);
                             } else {
-                                notifyClients(this.clientName + ": " + text);
+                                notifyClients(text);
                             }
                             break;
                         case "IMAV":

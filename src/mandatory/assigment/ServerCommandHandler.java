@@ -45,6 +45,6 @@ public class ServerCommandHandler {
         if (freeText.length() > 249) {
             return "J_ER - To many characters";
         }
-        return freeText;
+        return clientName + ": " + freeText;
     }
 }

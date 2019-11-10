@@ -57,7 +57,7 @@ public class Client {
             while (true) {
                 try {
                     String serverBroadcast = input.readLine();
-                    if (serverBroadcast.equals("J_OK")) {
+                    if (serverBroadcast.equals("J_OK") && !connected.get()) {
                         connected.set(true);
                     }
                     System.out.println(serverBroadcast);
