@@ -82,14 +82,7 @@ public class Client {
         return wrappedText;
     }
 
-
-
-
-
-    public static void main(String[] args) {
-        Client client = new Client("127.0.0.1", 1234);
-
-        //TODO: Implement this.
+//TODO: Implement this.
 //        Thread sendHeartbeat = new Thread(() -> {
 //            while (true) {
 //                try {
@@ -99,6 +92,10 @@ public class Client {
 //                }
 //            }
 //        });
-    }
 
+
+
+    public static void main(String[] args) {
+        Client client = new Client("127.0.0.1", 1234);
+    }
 }

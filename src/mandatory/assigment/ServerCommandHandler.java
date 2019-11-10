@@ -2,8 +2,6 @@ package mandatory.assigment;
 
 public class ServerCommandHandler {
 
-    //TODO: Add enums for the error messages so it is possible to write J_ER.(ERROR)
-
     /**
      * This method checks various parameters of the JOIN command sent to the server and will return a variety of error depending on the input.
      * If all is acknowledged by the server it will return J_OK and the client will get an active connection.

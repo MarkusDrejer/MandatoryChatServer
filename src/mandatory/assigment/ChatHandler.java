@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+    //TODO: Fix client class as it is a bit messy, make heartbeat work on both client and server side, maybe find a better solution to all the string splits
+
 public class ChatHandler implements Runnable {
 
     private Socket client;
