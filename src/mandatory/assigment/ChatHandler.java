@@ -27,33 +27,50 @@ public class ChatHandler implements Runnable {
             while (isRunning) {
                 if (isLoggedIn) {
                     String userInput = input.readLine();
-                    if (userInput.equals("QUIT")) {
-                        notifyClients(this.clientName + " har forladt chatten!");
-                        Server.nameList.remove(this.clientName);
-                        Server.clientList.remove(this);
-                        broadcastNewlyUpdatedList();
-                        isRunning = false;
-                        break;
-                    } else {
-                        notifyClients(this.clientName + ": " + userInput);
-                    }
-                } else {
-                    String name = input.readLine();
-                    if (name.startsWith("JOIN ")) {
-                        name = name.substring(5);
-                        String[] nameSplit = name.split(",", 0);
-                        name = nameSplit[0];
-                        if (!Server.nameList.containsKey(name)) {
-                            Server.nameList.put(name, client);
-                            output.println("J_OK");
+                    String[] commandSplit = userInput.split(" ", 2);
+                    String command = commandSplit[0];
+
+                    /**
+                     * The switch represents the command-set the server understands and can act upon.
+                     * The JOIN command is special and should only be able to happen once,
+                     * therefore it has a special else case to make sure that it will never happen more than once.
+                     */
+                    switch (command) {
+                        case "DATA":
+                            String text = ServerCommandHandler.dataCommand(commandSplit[1], clientName);
+                            if(text.startsWith("J_ER")) {
+                                output.println(text);
+                            } else {
+                                notifyClients(this.clientName + ": " + text);
+                            }
+                            break;
+                        case "IMAV":
+                            break;
+                        case "QUIT":
+                            notifyClients(this.clientName + " har forladt chatten!");
+                            Server.nameList.remove(this.clientName);
+                            Server.clientList.remove(this);
                             broadcastNewlyUpdatedList();
-                            this.clientName = name;
-                            isLoggedIn = true;
-                        } else {
-                            output.println("Error 401: Brugernavnet findes allerede i listen!");
-                        }
-                    } else {
-                        output.println("Sent String does not match protocol");
+                            isRunning = false;
+                            break;
+                        default:
+                            output.println("J_ER - No such command");
+                    }
+                    /**
+                     * The else underneath goes through the JOIN process of the connection, by checking if the user is adhering to the protocol
+                     * and makes various checks on the username chosen in the ServerCommandHandler Class.
+                     */
+                } else {
+                    String userInput = input.readLine();
+                    String nameCheck = ServerCommandHandler.joinCheck(userInput);
+                    output.println(nameCheck);
+                    if(nameCheck.equals("J_OK")) {
+                        String usernameSplit = userInput.split(",", 0)[0];
+                        String username = usernameSplit.split(" ", 0)[1];
+                        Server.nameList.put(username, client);
+                        broadcastNewlyUpdatedList();
+                        this.clientName = username;
+                        isLoggedIn = true;
                     }
                 }
             }
@@ -69,13 +86,13 @@ public class ChatHandler implements Runnable {
         }
     }
 
-    void notifyClients(String message) {
+    private void notifyClients(String message) {
         for (ChatHandler client : Server.clientList) {
             if (client.isLoggedIn) client.output.println(message);
         }
     }
 
-    void broadcastNewlyUpdatedList() {
+    private void broadcastNewlyUpdatedList() {
         for (ChatHandler client : Server.clientList) {
             if (client.isLoggedIn) {
                 client.output.println("---USERLIST---");

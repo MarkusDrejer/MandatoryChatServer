@@ -40,6 +40,8 @@ public class Client {
                     if (!connected.get()) {
                         username = msg;
                         msg = wrapper("JOIN", msg);
+                    } else if(msg.equals("QUIT")) {
+
                     } else {
                         msg = wrapper("DATA", msg);
                     }
