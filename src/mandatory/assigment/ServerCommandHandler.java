@@ -55,6 +55,9 @@ public class ServerCommandHandler {
         return JErrorStatus.OK;
     }
 
+    /**
+     * Small method for ease of splitting user input strings received by the server to interpret the individual parts.
+     */
     private static String[] splitString(String input,  int limit) {
         input = input.replaceFirst("[,:]", "");
         input = input.replaceAll("\\s+", " ");

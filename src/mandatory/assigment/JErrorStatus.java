@@ -17,7 +17,7 @@ public enum JErrorStatus {
     private final int code;
     private final String errorMsg;
 
-    private JErrorStatus(int code, String errorMsg) {
+    JErrorStatus(int code, String errorMsg) {
         this.code = code;
         this.errorMsg = errorMsg;
     }

@@ -27,6 +27,10 @@ public class ChatHandler implements Runnable {
     public void run() {
         try {
             while (isRunning) {
+                /**
+                 * Takes user inputs and splits it into smaller strings so just the command can be extracted,
+                 * interpreted and acted upon.
+                 */
                 String userInput = input.readLine();
                 String[] commandSplit = userInput.split("[\\s,:]", 3);
                 String command = commandSplit[0];
@@ -46,6 +50,7 @@ public class ChatHandler implements Runnable {
                             }
                             break;
                         case "IMAV":
+                            //TODO: implement server being able to understand heartbeat sent by clients and extend their timeouts
                             break;
                         case "QUIT":
                             notifyClients(this.clientName + " har forladt chatten!");
@@ -85,12 +90,19 @@ public class ChatHandler implements Runnable {
         }
     }
 
+    /**
+     * Runs through the list of all clients and broadcasts whichever message a user has sent to the server.
+     */
     private void notifyClients(String message) {
         for (ChatHandler client : Server.clientList) {
             if (client.isLoggedIn) client.output.println(message);
         }
     }
 
+    /**
+     * Whenever a new client connects to the server this method will broadcast to all connected clients, which clients
+     * are connected at this moment in a user list by running through the map of all user names active on the server.
+     */
     private void broadcastNewlyUpdatedList() {
         for (ChatHandler client : Server.clientList) {
             if (client.isLoggedIn) {
