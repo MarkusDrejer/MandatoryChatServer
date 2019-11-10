@@ -37,11 +37,11 @@ public class ChatHandler implements Runnable {
                      */
                     switch (command) {
                         case "DATA":
-                            String text = ServerCommandHandler.dataCommand(commandSplit[1], clientName);
-                            if(text.startsWith("J_ER")) {
-                                output.println(text);
+                            JErrorStatus status = ServerCommandHandler.dataCommand(commandSplit[1], clientName);
+                            if(status == JErrorStatus.OK) {
+                                notifyClients(clientName + ":" + commandSplit[1].split(":", 0)[1]);
                             } else {
-                                notifyClients(text);
+                                output.println(status);
                             }
                             break;
                         case "IMAV":
@@ -54,7 +54,7 @@ public class ChatHandler implements Runnable {
                             isRunning = false;
                             break;
                         default:
-                            output.println("J_ER - No such command");
+                            output.println(JErrorStatus.NO_SUCH_COMMAND);
                     }
                     /**
                      * The else underneath goes through the JOIN process of the connection, by checking if the user is adhering to the protocol
@@ -63,9 +63,9 @@ public class ChatHandler implements Runnable {
                 } else {
                     output.println("Please input a username");
                     String userInput = input.readLine();
-                    String nameCheck = ServerCommandHandler.joinCheck(userInput);
-                    output.println(nameCheck);
-                    if(nameCheck.equals("J_OK")) {
+                    JErrorStatus status = ServerCommandHandler.joinCheck(userInput);
+                    output.println(status);
+                    if(status == JErrorStatus.OK) {
                         String usernameSplit = userInput.split(",", 0)[0];
                         String username = usernameSplit.split(" ", 0)[1];
                         Server.nameList.put(username, client);
