@@ -9,7 +9,7 @@ public enum JErrorStatus {
     CLIENT_NAME_MISMATCH(105, "Client name does not match"),
     TEXT_TO_LONG(106, "To many characters in written text"),
 
-    OK(202, "J_OK");
+    OK(202, "OK");
 
     private final int code;
     private final String errorMsg;
@@ -28,6 +28,9 @@ public enum JErrorStatus {
     }
 
     public String toString() {
-        return "J_ER " + Integer.toString(this.code) + ": " + this.errorMsg;
+        if(this == JErrorStatus.OK) {
+            return "J_OK";
+        }
+        return "J_ER " + this.code + ": " + this.errorMsg;
     }
 }

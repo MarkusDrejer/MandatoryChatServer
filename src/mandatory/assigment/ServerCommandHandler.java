@@ -15,26 +15,20 @@ public class ServerCommandHandler {
         String[] infoSplit = nameSplit[1].split(":", 0);
 
         if(!commandSplit[0].equals("JOIN")) {
-            //return "J_ER - Not following protocol";
             return JErrorStatus.NO_SUCH_COMMAND;
         }
         if (!infoSplit[0].matches("(.*)\\.(.*)\\.(.*)\\.(.*)") && !infoSplit[1].matches("^[0-9]*$")) {
-            //return "J_ER - Problem with IP or Port";
             return JErrorStatus.IP_PORT_PROBLEM;
         }
         if (!username.matches("^[a-zA-Z0-9\\-_]*$")) {
-            //return "J_ER - Username contains illegal characters";
             return JErrorStatus.ILLEGAL_CHARACTERS;
         }
         if (username.length() > 11) {
-            //return "J_ER - Username is to long";
             return JErrorStatus.USERNAME_TO_LONG;
         }
         if (Server.nameList.containsKey(username)) {
-            //return "J_ER - Username already exists / Error 401: Brugernavnet findes allerede i listen!";
             return JErrorStatus.USERNAME_ALREADY_EXISTS;
         }
-        //return "J_OK";
         return JErrorStatus.OK;
     }
 
@@ -46,14 +40,11 @@ public class ServerCommandHandler {
         String freeText = freeTextSplit[1].substring(1);
 
         if(!freeTextSplit[0].equals(clientName)) {
-            //return "J_ER - Client name does not match";
             return JErrorStatus.CLIENT_NAME_MISMATCH;
         }
         if (freeText.length() > 249) {
-            //return "J_ER - To many characters";
             return JErrorStatus.TEXT_TO_LONG;
         }
-        //return clientName + ": " + freeText;
         return JErrorStatus.OK;
     }
 }
