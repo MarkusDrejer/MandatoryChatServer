@@ -9,15 +9,12 @@ public class ServerCommandHandler {
     public static JErrorStatus joinCheck(String input) {
         try {
             String[] fullSplit = splitString(input, 4);
-            String username = fullSplit[1];
             String zeroTo255 = "([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])";
-            for (String s : fullSplit) {
-                System.out.println(s);
-            }
 
             if (!fullSplit[0].equals("JOIN")) {
                 return JErrorStatus.NO_SUCH_COMMAND;
             }
+            String username = fullSplit[1];
             if (!fullSplit[2].matches((zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255))) {
                 return JErrorStatus.NOT_VALID_IP;
             }

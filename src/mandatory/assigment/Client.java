@@ -34,35 +34,38 @@ public class Client {
 
         Thread messageToServer = new Thread(() -> {
             System.out.println("Please input a username");
-            while (true) {
-                try {
-                    System.out.print(">> ");
-                    String userInput = keyboardInput.readLine();
-                    if (!connected.get()) {
-                        username = userInput;
-                        userInput = wrapper("JOIN", userInput);
-                    } else if(!userInput.equals("QUIT")){
-                        userInput = wrapper("DATA", userInput);
+            try {
+                String userInput = keyboardInput.readLine();
+                while (!userInput.equals("QUIT")) {
+                        System.out.print(">> ");
+                        if (!connected.get()) {
+                            username = userInput;
+                            userInput = wrapper("JOIN", userInput);
+                        } else {
+                            userInput = wrapper("DATA", userInput);
+                        }
+                        output.println(userInput);
+                        userInput = keyboardInput.readLine();
                     }
-                    output.println(userInput);
+                output.println(userInput);
                 } catch (IOException error) {
-                    System.out.println("Noget gik galt: " + error.getMessage());
+                System.out.println("Noget gik galt: " + error.getMessage());
                 }
-            }
         });
         messageToServer.start();
 
         Thread messageFromServer = new Thread(() -> {
-            while (true) {
-                try {
-                    String serverBroadcast = input.readLine();
-                    if (serverBroadcast.equals("J_OK") && !connected.get()) {
-                        connected.set(true);
+            try {
+                String serverBroadcast = input.readLine();
+                while (!serverBroadcast.equals(JErrorStatus.DISCONNECTED.toString())) {
+                        if (serverBroadcast.equals("J_OK") && !connected.get()) {
+                            connected.set(true);
+                        }
+                        System.out.println(serverBroadcast);
+                        serverBroadcast = input.readLine();
                     }
-                    System.out.println(serverBroadcast);
                 } catch (IOException error) {
-                    System.out.println("Noget gik galt: " + error.getMessage());
-                }
+                System.out.println("Noget gik galt: " + error.getMessage());
             }
         });
         messageFromServer.start();
@@ -82,6 +85,7 @@ public class Client {
     }
 
 //TODO: Implement this.
+
 //        Thread sendHeartbeat = new Thread(() -> {
 //            while (true) {
 //                try {

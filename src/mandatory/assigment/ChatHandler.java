@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-    //TODO: Make heartbeat work on both client and server side, maybe find a better solution to all the string splits
+    //TODO: Make heartbeat work on both client and server side, add more comments
 
 public class ChatHandler implements Runnable {
 
@@ -28,9 +28,9 @@ public class ChatHandler implements Runnable {
         try {
             while (isRunning) {
                 String userInput = input.readLine();
+                String[] commandSplit = userInput.split("[\\s,:]", 3);
+                String command = commandSplit[0];
                 if (isLoggedIn) {
-                    String[] commandSplit = userInput.split("[\\s:]", 3);
-                    String command = commandSplit[0];
                     /**
                      * The switch represents the command-set the server understands and can act upon.
                      * The JOIN command is special and should only be able to happen once,
@@ -49,6 +49,7 @@ public class ChatHandler implements Runnable {
                             break;
                         case "QUIT":
                             notifyClients(this.clientName + " har forladt chatten!");
+                            output.println(JErrorStatus.DISCONNECTED);
                             Server.nameList.remove(this.clientName);
                             Server.clientList.remove(this);
                             broadcastNewlyUpdatedList();
@@ -65,12 +66,10 @@ public class ChatHandler implements Runnable {
                     JErrorStatus status = ServerCommandHandler.joinCheck(userInput);
                     output.println(status);
                     if(status == JErrorStatus.OK) {
-                        String usernameSplit = userInput.split(",", 0)[0];
-                        String username = usernameSplit.split(" ", 0)[1];
-                        Server.nameList.put(username, client);
-                        broadcastNewlyUpdatedList();
-                        this.clientName = username;
+                        Server.nameList.put(commandSplit[1], client);
+                        this.clientName = commandSplit[1];
                         isLoggedIn = true;
+                        broadcastNewlyUpdatedList();
                     }
                 }
             }
