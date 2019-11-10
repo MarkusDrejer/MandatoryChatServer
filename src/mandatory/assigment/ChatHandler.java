@@ -61,6 +61,7 @@ public class ChatHandler implements Runnable {
                      * and makes various checks on the username chosen in the ServerCommandHandler Class.
                      */
                 } else {
+                    output.println("Please input a username");
                     String userInput = input.readLine();
                     String nameCheck = ServerCommandHandler.joinCheck(userInput);
                     output.println(nameCheck);
