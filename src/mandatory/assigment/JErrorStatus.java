@@ -2,13 +2,14 @@ package mandatory.assigment;
 
 public enum JErrorStatus {
     NO_SUCH_COMMAND(100, "No such command"),
-    IP_PORT_PROBLEM(101, "Problem with given IP or port"),
-    ILLEGAL_CHARACTERS(102, "Username contains illegal characters"),
-    USERNAME_TO_LONG(103, "Username to long"),
-    USERNAME_ALREADY_EXISTS(104, "Username already exists"),
-    CLIENT_NAME_MISMATCH(105, "Client name does not match"),
-    TEXT_TO_LONG(106, "Too many characters in written text"),
-    MISSING_MESSAGE(107, "Missing parts of message after command"),
+    NOT_VALID_IP(101, "Not a valid IP"),
+    NOT_VALID_PORT(102, "Not a valid port"),
+    ILLEGAL_CHARACTERS(103, "Username contains illegal characters"),
+    USERNAME_TO_LONG(104, "Username to long"),
+    USERNAME_ALREADY_EXISTS(105, "Username already exists"),
+    CLIENT_NAME_MISMATCH(106, "Client name does not match"),
+    TEXT_TO_LONG(107, "Too many characters in written text"),
+    MISSING_MESSAGE(108, "Missing parts of message after command"),
 
     OK(202, "OK");
 

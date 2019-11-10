@@ -10,12 +10,19 @@ public class ServerCommandHandler {
         try {
             String[] fullSplit = splitString(input, 4);
             String username = fullSplit[1];
+            String zeroTo255 = "([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])";
+            for (String s : fullSplit) {
+                System.out.println(s);
+            }
 
             if (!fullSplit[0].equals("JOIN")) {
                 return JErrorStatus.NO_SUCH_COMMAND;
             }
-            if (!fullSplit[2].matches("(.*)\\.(.*)\\.(.*)\\.(.*)") && !fullSplit[3].matches("^[0-9]*$")) {
-                return JErrorStatus.IP_PORT_PROBLEM;
+            if (!fullSplit[2].matches((zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255))) {
+                return JErrorStatus.NOT_VALID_IP;
+            }
+            if(!fullSplit[3].matches("^[0-9]*$")) {
+                return JErrorStatus.NOT_VALID_PORT;
             }
             if (!username.matches("^[a-zA-Z0-9\\-_]*$")) {
                 return JErrorStatus.ILLEGAL_CHARACTERS;
