@@ -9,10 +9,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
 
+    enum Status {
+        STARTUP,
+        CONNECTED,
+        DISCONNECTED
+    }
+
     private String IP;
     private int port;
     private String username;
-    private boolean connected = false;
+    private Status clientStatus = Status.STARTUP;
 
     private BufferedReader keyboardInput = null;
     private BufferedReader input = null;
@@ -30,7 +36,6 @@ public class Client {
             System.out.println("Noget gik galt: " + error.getMessage());
         }
 
-
         /**
          * Thread to send messages to the server, will run until the user types "QUIT" and makes sure the user inputs,
          * are wrapped the correct way so the server understands it depending on whether the client is connected or not
@@ -39,13 +44,16 @@ public class Client {
             System.out.println("Please input a username");
             try {
                 String userInput = keyboardInput.readLine();
-                while (!userInput.equals("QUIT")) {
+                while (!userInput.equals("QUIT") && clientStatus != Status.DISCONNECTED) {
                     System.out.print(">> ");
-                    if (!connected) {
-                        username = userInput;
-                        userInput = wrapper("JOIN", userInput);
-                    } else {
-                        userInput = wrapper("DATA", userInput);
+                    switch (clientStatus) {
+                        case STARTUP:
+                            username = userInput;
+                            userInput = wrapper("JOIN", userInput);
+                            break;
+                        case CONNECTED:
+                            userInput = wrapper("DATA", userInput);
+                            break;
                     }
                     output.println(userInput);
                     userInput = keyboardInput.readLine();
@@ -64,9 +72,13 @@ public class Client {
         Thread messageFromServer = new Thread(() -> {
             try {
                 String serverBroadcast = input.readLine();
-                while (!serverBroadcast.equals(JErrorStatus.DISCONNECTED.toString())) {
-                    if (serverBroadcast.equals("J_OK") && !connected) {
-                        connected = true;
+                while (clientStatus != Status.DISCONNECTED) {
+                    if (serverBroadcast.equals(JErrorStatus.OK.toString()) && clientStatus == Status.STARTUP) {
+                        clientStatus = Status.CONNECTED;
+                    }
+                    if (serverBroadcast.equals(JErrorStatus.TIMEOUT.toString()) || serverBroadcast.equals(JErrorStatus.DISCONNECTED.toString())) {
+                        clientStatus = Status.DISCONNECTED;
+                        break;
                     }
                     System.out.println(serverBroadcast);
                     serverBroadcast = input.readLine();
