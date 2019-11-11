@@ -12,13 +12,11 @@ public class Client {
     private String IP;
     private int port;
     private String username;
+    private boolean connected = false;
 
     private BufferedReader keyboardInput = null;
     private BufferedReader input = null;
     private PrintWriter output = null;
-
-    //Boolean is Atomic because it is used in Threads and a normal boolean is not threadsafe, this is.
-    private AtomicBoolean connected = new AtomicBoolean(false);
 
     public Client(String IP, int port) {
         this.IP = IP;
@@ -43,7 +41,7 @@ public class Client {
                 String userInput = keyboardInput.readLine();
                 while (!userInput.equals("QUIT")) {
                     System.out.print(">> ");
-                    if (!connected.get()) {
+                    if (!connected) {
                         username = userInput;
                         userInput = wrapper("JOIN", userInput);
                     } else {
@@ -67,8 +65,8 @@ public class Client {
             try {
                 String serverBroadcast = input.readLine();
                 while (!serverBroadcast.equals(JErrorStatus.DISCONNECTED.toString())) {
-                    if (serverBroadcast.equals("J_OK") && !connected.get()) {
-                        connected.set(true);
+                    if (serverBroadcast.equals("J_OK") && !connected) {
+                        connected = true;
                     }
                     System.out.println(serverBroadcast);
                     serverBroadcast = input.readLine();
