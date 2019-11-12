@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-    //TODO: Make heartbeat work on both client and server side, add more comments
+    //TODO: Make heartbeat work on server side, add more comments
 
 public class ChatHandler implements Runnable {
 
@@ -15,6 +15,7 @@ public class ChatHandler implements Runnable {
     private PrintWriter output;
     private boolean isLoggedIn;
     private boolean isRunning = true;
+    //private int heartBeatInterval = 0;
     private String clientName;
 
     ChatHandler(Socket clientSocket) throws IOException {
@@ -22,6 +23,21 @@ public class ChatHandler implements Runnable {
         input = new BufferedReader(new InputStreamReader(client.getInputStream()));
         output = new PrintWriter(client.getOutputStream(), true);
     }
+
+    /*private Thread heartbeat = new Thread(() -> {
+        while (isRunning) {
+            try {
+                if (heartBeatInterval == 60) {
+                    disconnectClient(JErrorStatus.TIMEOUT);
+                } else {
+                    heartBeatInterval++;
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    });*/
 
     @Override
     public void run() {
@@ -48,20 +64,19 @@ public class ChatHandler implements Runnable {
                             } else {
                                 output.println(status);
                             }
+                            //heartBeatInterval = 0;
                             break;
                         case "IMAV":
-                            //TODO: implement server being able to understand heartbeat sent by clients and extend their timeouts
+                            //heartBeatInterval = 0;
+                            //TODO: implement server being able to understand heartbeat sent by clients and extend their timeouts and timeout any client who hasn't sent anything in a minute
                             break;
                         case "QUIT":
                             notifyClients(this.clientName + " har forladt chatten!");
-                            output.println(JErrorStatus.DISCONNECTED);
-                            Server.nameList.remove(this.clientName);
-                            Server.clientList.remove(this);
-                            broadcastNewlyUpdatedList();
-                            isRunning = false;
+                            disconnectClient(JErrorStatus.DISCONNECTED);
                             break;
                         default:
                             output.println(JErrorStatus.NO_SUCH_COMMAND);
+                            //heartBeatInterval = 0;
                     }
                     /**
                      * The else underneath goes through the JOIN process of the connection, by checking if the user is adhering to the protocol
@@ -74,6 +89,7 @@ public class ChatHandler implements Runnable {
                         Server.nameList.put(commandSplit[1], client);
                         this.clientName = commandSplit[1];
                         isLoggedIn = true;
+                        //heartbeat.start();
                         broadcastNewlyUpdatedList();
                     }
                 }
@@ -88,6 +104,17 @@ public class ChatHandler implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Method for disconnecting the client and send a given JErrorStatus to the client to clarify why the client got disconnected
+     */
+    private void disconnectClient(JErrorStatus status) {
+        output.println(status);
+        Server.nameList.remove(this.clientName);
+        Server.clientList.remove(this);
+        broadcastNewlyUpdatedList();
+        isRunning = false;
     }
 
     /**
@@ -106,7 +133,7 @@ public class ChatHandler implements Runnable {
     private void broadcastNewlyUpdatedList() {
         for (ChatHandler client : Server.clientList) {
             if (client.isLoggedIn) {
-                client.output.println("---USERLIST---");
+                client.output.println("\n ---USERLIST---");
                 for (String name : Server.nameList.keySet()) {
                     client.output.println(name);
                 }

@@ -18,6 +18,7 @@ public class Client {
     private String IP;
     private int port;
     private String username;
+    //private int heartBeatInterval = 0;
     private Status clientStatus = Status.STARTUP;
 
     private BufferedReader keyboardInput = null;
@@ -37,6 +38,27 @@ public class Client {
         }
 
         /**
+         * A thread running a heartbeat which is sent to the server every minute to prevent a time-out if the user is inactive,
+         * it will only send if the user has not sent anything him/her-self in the last 60 seconds.
+         */
+        /*Thread heartbeat = new Thread(() -> {
+            System.out.println("Heartbeat started");
+            while (clientStatus != Status.DISCONNECTED) {
+                try {
+                    if (heartBeatInterval == 59) {
+                        output.println("IMAV");
+                        heartBeatInterval = 0;
+                    } else {
+                        heartBeatInterval++;
+                        Thread.sleep(1000);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });*/
+
+        /**
          * Thread to send messages to the server, will run until the user types "QUIT" and makes sure the user inputs,
          * are wrapped the correct way so the server understands it depending on whether the client is connected or not
          */
@@ -46,16 +68,8 @@ public class Client {
                 String userInput = keyboardInput.readLine();
                 while (!userInput.equals("QUIT") && clientStatus != Status.DISCONNECTED) {
                     System.out.print(">> ");
-                    switch (clientStatus) {
-                        case STARTUP:
-                            username = userInput;
-                            userInput = wrapper("JOIN", userInput);
-                            break;
-                        case CONNECTED:
-                            userInput = wrapper("DATA", userInput);
-                            break;
-                    }
-                    output.println(userInput);
+                    output.println(wrapper(userInput));
+                    //heartBeatInterval = 0;
                     userInput = keyboardInput.readLine();
                 }
                 output.println(userInput);
@@ -75,9 +89,11 @@ public class Client {
                 while (clientStatus != Status.DISCONNECTED) {
                     if (serverBroadcast.equals(JErrorStatus.OK.toString()) && clientStatus == Status.STARTUP) {
                         clientStatus = Status.CONNECTED;
+                        //heartbeat.start();
                     }
                     if (serverBroadcast.equals(JErrorStatus.TIMEOUT.toString()) || serverBroadcast.equals(JErrorStatus.DISCONNECTED.toString())) {
                         clientStatus = Status.DISCONNECTED;
+                        System.out.println(serverBroadcast);
                         break;
                     }
                     System.out.println(serverBroadcast);
@@ -94,34 +110,19 @@ public class Client {
      * Method to wrap any user input into a understandable command by the server, this means that this client type does not,
      * need to worry about the actual server commands, rather just types and the rest is taken care of.
      */
-    private String wrapper(String type, String input) {
+    private String wrapper(String input) {
         String wrappedText = "";
-        switch (type) {
-            case "JOIN":
+        switch (clientStatus) {
+            case STARTUP:
+                username = input;
                 wrappedText = "JOIN " + input + ", " + IP + ":" + port;
                 break;
-            case "DATA":
+            case CONNECTED:
                 wrappedText = "DATA " + username + ": " + input;
                 break;
         }
         return wrappedText;
     }
-
-    /**
-     * A thread running a heartbeat which is sent to the server every minute to prevent a time-out if the user is inactive,
-     * it will only send if the user has not sent anything him/her-self in the last 60 seconds.
-     */
-//TODO: Implement this.
-
-//        Thread sendHeartbeat = new Thread(() -> {
-//            while (true) {
-//                try {
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
 
     /**
      * Runs the client

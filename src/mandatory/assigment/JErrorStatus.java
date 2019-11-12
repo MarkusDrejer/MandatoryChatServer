@@ -10,7 +10,7 @@ public enum JErrorStatus {
     CLIENT_NAME_MISMATCH(106, "Client name does not match"),
     TEXT_TO_LONG(107, "Too many characters in written text"),
     MISSING_MESSAGE(108, "Missing parts of message after command"),
-    DISCONNECTED(300, "You have been disconnected"),
+    DISCONNECTED(300, "You have been disconnected (voluntarily)"),
     TIMEOUT(410, "You have been timed-out"),
     OK(202, "OK");
 
