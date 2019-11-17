@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 
-    //TODO: Make heartbeat work on server side, add more comments
+//TODO: Make heartbeat work on server side, add more comments
 
 public class ChatHandler implements Runnable {
 
@@ -15,7 +16,7 @@ public class ChatHandler implements Runnable {
     private PrintWriter output;
     private boolean isLoggedIn;
     private boolean isRunning = true;
-    //private int heartBeatInterval = 0;
+    private int heartBeatInterval = 0;
     private String clientName;
 
     ChatHandler(Socket clientSocket) throws IOException {
@@ -24,10 +25,10 @@ public class ChatHandler implements Runnable {
         output = new PrintWriter(client.getOutputStream(), true);
     }
 
-    /*private Thread heartbeat = new Thread(() -> {
+    private Thread heartbeat = new Thread(() -> {
         while (isRunning) {
             try {
-                if (heartBeatInterval == 60) {
+                if (heartBeatInterval == 61) {
                     disconnectClient(JErrorStatus.TIMEOUT);
                 } else {
                     heartBeatInterval++;
@@ -37,7 +38,7 @@ public class ChatHandler implements Runnable {
                 e.printStackTrace();
             }
         }
-    });*/
+    });
 
     @Override
     public void run() {
@@ -48,6 +49,7 @@ public class ChatHandler implements Runnable {
                  * interpreted and acted upon.
                  */
                 String userInput = input.readLine();
+                heartBeatInterval = 0;
                 String[] commandSplit = userInput.split("[\\s,:]", 3);
                 String command = commandSplit[0];
                 if (isLoggedIn) {
@@ -64,10 +66,8 @@ public class ChatHandler implements Runnable {
                             } else {
                                 output.println(status);
                             }
-                            //heartBeatInterval = 0;
                             break;
                         case "IMAV":
-                            //heartBeatInterval = 0;
                             //TODO: implement server being able to understand heartbeat sent by clients and extend their timeouts and timeout any client who hasn't sent anything in a minute
                             break;
                         case "QUIT":
@@ -76,7 +76,6 @@ public class ChatHandler implements Runnable {
                             break;
                         default:
                             output.println(JErrorStatus.NO_SUCH_COMMAND);
-                            //heartBeatInterval = 0;
                     }
                     /**
                      * The else underneath goes through the JOIN process of the connection, by checking if the user is adhering to the protocol
@@ -89,17 +88,19 @@ public class ChatHandler implements Runnable {
                         Server.nameList.put(commandSplit[1], client);
                         this.clientName = commandSplit[1];
                         isLoggedIn = true;
-                        //heartbeat.start();
+                        heartbeat.start();
                         broadcastNewlyUpdatedList();
                     }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+            disconnectClient(JErrorStatus.DISCONNECTED);
         } finally {
-            output.close();
             try {
+                output.close();
                 input.close();
+                client.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

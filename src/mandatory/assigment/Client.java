@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
 
@@ -18,8 +17,8 @@ public class Client {
     private String IP;
     private int port;
     private String username;
-    //private int heartBeatInterval = 0;
-    private Status clientStatus = Status.STARTUP;
+    private int heartBeatInterval = 0;
+    private Status clientStatus;
 
     private BufferedReader keyboardInput = null;
     private BufferedReader input = null;
@@ -28,6 +27,7 @@ public class Client {
     public Client(String IP, int port) {
         this.IP = IP;
         this.port = port;
+        clientStatus = Status.STARTUP;
         try {
             Socket socket = new Socket(IP, port);
             keyboardInput = new BufferedReader(new InputStreamReader(System.in));
@@ -41,11 +41,10 @@ public class Client {
          * A thread running a heartbeat which is sent to the server every minute to prevent a time-out if the user is inactive,
          * it will only send if the user has not sent anything him/her-self in the last 60 seconds.
          */
-        /*Thread heartbeat = new Thread(() -> {
-            System.out.println("Heartbeat started");
+        Thread heartbeat = new Thread(() -> {
             while (clientStatus != Status.DISCONNECTED) {
                 try {
-                    if (heartBeatInterval == 59) {
+                    if (heartBeatInterval == 60) {
                         output.println("IMAV");
                         heartBeatInterval = 0;
                     } else {
@@ -56,7 +55,7 @@ public class Client {
                     e.printStackTrace();
                 }
             }
-        });*/
+        });
 
         /**
          * Thread to send messages to the server, will run until the user types "QUIT" and makes sure the user inputs,
@@ -69,7 +68,7 @@ public class Client {
                 while (!userInput.equals("QUIT") && clientStatus != Status.DISCONNECTED) {
                     System.out.print(">> ");
                     output.println(wrapper(userInput));
-                    //heartBeatInterval = 0;
+                    heartBeatInterval = 0;
                     userInput = keyboardInput.readLine();
                 }
                 output.println(userInput);
@@ -89,7 +88,7 @@ public class Client {
                 while (clientStatus != Status.DISCONNECTED) {
                     if (serverBroadcast.equals(JErrorStatus.OK.toString()) && clientStatus == Status.STARTUP) {
                         clientStatus = Status.CONNECTED;
-                        //heartbeat.start();
+                        heartbeat.start();
                     }
                     if (serverBroadcast.equals(JErrorStatus.TIMEOUT.toString()) || serverBroadcast.equals(JErrorStatus.DISCONNECTED.toString())) {
                         clientStatus = Status.DISCONNECTED;
