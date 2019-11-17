@@ -7,8 +7,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-//TODO: Make heartbeat work on server side, add more comments
-
 public class ChatHandler implements Runnable {
 
     private Socket client;
@@ -25,6 +23,7 @@ public class ChatHandler implements Runnable {
         output = new PrintWriter(client.getOutputStream(), true);
     }
 
+    //TODO: Might have to write to its own class as the current solution is very copy-paste from the client
     private Thread heartbeat = new Thread(() -> {
         while (isRunning) {
             try {
@@ -67,6 +66,8 @@ public class ChatHandler implements Runnable {
                                 output.println(status);
                             }
                             break;
+                            //TODO: May be redundant as the server should extend the alive-time with all inputs not just this one in particular,
+                            // So having it as a command might not have any meaning by itself
                         case "IMAV":
                             //TODO: implement server being able to understand heartbeat sent by clients and extend their timeouts and timeout any client who hasn't sent anything in a minute
                             break;
@@ -93,6 +94,7 @@ public class ChatHandler implements Runnable {
                     }
                 }
             }
+            //TODO: Have the server be able to close connections properly especially on a Terminated client that has no direct log-out
         } catch (IOException e) {
             e.printStackTrace();
             disconnectClient(JErrorStatus.DISCONNECTED);
