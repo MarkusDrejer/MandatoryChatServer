@@ -17,12 +17,11 @@ public class Client {
     private String IP;
     private int port;
     private String username;
-    private int heartBeatInterval = 0;
     private Status clientStatus;
-
     private BufferedReader keyboardInput = null;
     private BufferedReader input = null;
     private PrintWriter output = null;
+    private Heartbeat testHeartbeat = new Heartbeat();
 
     public Client(String IP, int port) {
         this.IP = IP;
@@ -44,11 +43,11 @@ public class Client {
         Thread heartbeat = new Thread(() -> {
             while (clientStatus != Status.DISCONNECTED) {
                 try {
-                    if (heartBeatInterval == 60) {
-                        output.println("IMAV");
-                        heartBeatInterval = 0;
+                    if (testHeartbeat.isReadyToSendHeartbeat()) {
+                        output.println(testHeartbeat.sendHeartbeatToServer());
+                        testHeartbeat.reset();
                     } else {
-                        heartBeatInterval++;
+                        testHeartbeat.increaseHeartbeatInterval();
                         Thread.sleep(1000);
                     }
                 } catch (InterruptedException e) {
@@ -68,7 +67,7 @@ public class Client {
                 while (!userInput.equals("QUIT") && clientStatus != Status.DISCONNECTED) {
                     System.out.print(">> ");
                     output.println(wrapper(userInput));
-                    heartBeatInterval = 0;
+                    testHeartbeat.reset();
                     userInput = keyboardInput.readLine();
                 }
                 output.println(userInput);
