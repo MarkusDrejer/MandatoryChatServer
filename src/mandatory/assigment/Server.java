@@ -17,7 +17,7 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
 
-        //Opretter Server Socket
+        //Creates Server Socket
         ServerSocket serverSocket = new ServerSocket(1234);
 
         while (true) {
@@ -28,7 +28,7 @@ public class Server {
             Socket client = serverSocket.accept();
             System.out.println("Forbindelse er oprettet mellem server og klient...");
 
-            //Laver Client thread og tilføjer til List
+            //Makes Client thread and add it to the Client List.
             ChatHandler clientThread = new ChatHandler(client);
 
             clientList.add(clientThread);
