@@ -23,7 +23,6 @@ public class ChatHandler implements Runnable {
         output = new PrintWriter(client.getOutputStream(), true);
     }
 
-    //TODO: Might have to write to its own class as the current solution is very copy-paste from the client
     private Thread heartbeat = new Thread(() -> {
         while (isRunning) {
             try {
